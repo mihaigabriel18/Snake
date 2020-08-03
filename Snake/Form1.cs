@@ -12,7 +12,7 @@ using System.Windows.Forms;
 namespace Snake
 {
 
-    public partial class Form1 : Form
+    public partial class Snake : Form
     {
         // enable double buffering
         protected override CreateParams CreateParams
@@ -29,6 +29,8 @@ namespace Snake
         static Queue position = new Queue();
         public static bool tick = false;
         public static int direction; // 0 for up // 1 for right // 2 for down // 3 for left
+        public static int score = 0;
+        public static bool isFirst = true;
 
         struct coords {
             public int x, y;
@@ -36,24 +38,25 @@ namespace Snake
 
         static coords justEnqueuedItem; // the item that was just enqueued (a peek that works on the other side)
 
-        public Form1()
+        public Snake()
         {
             // initializing the starting position of the snake
             initilizeSnake(mapColor);
             InitializeComponent();
 
-            timer1.Interval = 100;
+            timer1.Interval = 1000 / 16;
             timer1.Tick += Timer1_Tick;
         }
 
         private void initilizeSnake(Color[,] color)
         {
+
             // we put the snake in a random position !!!!!!!!
             coords point = new coords();
             justEnqueuedItem = new coords();
             direction = 1;
 
-            point.x = 14;
+            point.x = 2;
             point.y = 14;
             position.Enqueue(point);
             color[point.x, point.y] = Color.Green;
@@ -125,12 +128,24 @@ namespace Snake
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            ChangeState(e.KeyCode, true);
+            if (isFirst)
+            {
+                if (e.KeyCode.Equals(Keys.Down) || e.KeyCode.Equals(Keys.Up) || e.KeyCode.Equals(Keys.Left) || e.KeyCode.Equals(Keys.Right))
+                {
+                    timer1.Start();
+                    isFirst = false;
+                }
+            }
+            else
+            {
+                ChangeState(e.KeyCode, true);
+                e.SuppressKeyPress = true;
+            }
         }
 
         private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
-            ChangeState(e.KeyCode, true);
+            //ChangeState(e.KeyCode, true);
         }
 
         private void Timer1_Tick(object sender, EventArgs e)
@@ -168,8 +183,9 @@ namespace Snake
             // we check if we just killed ourself
             if (!AmIStillAlive(newItem))
             {
+                richTextBox5.Visible = true;
+                richTextBox4.Visible = false;
                 timer1.Stop();
-                button1.Text = "Game Over";
                 return;
             }
 
@@ -178,11 +194,11 @@ namespace Snake
 
             if (mapColor[newItem.x, newItem.y] == Color.Red)
             {
-                Console.WriteLine("dap");
                 justEnqueuedItem = newItem;
                 mapColor[justEnqueuedItem.x, justEnqueuedItem.y] = Color.Green;
                 position.Enqueue(newItem);
-                
+                score++;
+                richTextBox2.Text = score.ToString();
 
                 generateFood();
                 return;
@@ -194,13 +210,9 @@ namespace Snake
             newItem = (coords)position.Peek();
             mapColor[newItem.x, newItem.y] = Color.White;
             position.Dequeue();
+            keyTable.Clear();
 
             tableLayoutPanel1.Refresh();
-        }
-
-        private void Button1_Click(object sender, EventArgs e)
-        {
-            timer1.Start();
         }
 
         private void generateFood()
