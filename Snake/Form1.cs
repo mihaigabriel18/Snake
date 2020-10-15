@@ -44,7 +44,7 @@ namespace Snake
             initilizeSnake(mapColor);
             InitializeComponent();
 
-            timer1.Interval = 1000 / 16;
+            timer1.Interval = 100;
             timer1.Tick += Timer1_Tick;
         }
 
