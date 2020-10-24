@@ -201,6 +201,8 @@ namespace Snake
                 for (int j = 0; j < SnakeInstance.GridSize; j++)
                     snake.MapColor[i, j] = Color.White;
 
+            score = 0;
+            richTextBox2.Text = score.ToString();
             startGame = true;
             difficultySelected = false;
 
